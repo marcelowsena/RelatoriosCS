@@ -1,4 +1,5 @@
 import requests
+import os
 from msal import ConfidentialClientApplication
 
 # ⚙️ Configurações globais fixas
@@ -68,7 +69,7 @@ def upload_arquivo_sharepoint(token, caminho_local):
     """
     Sobe um arquivo local para a pasta definida no SharePoint.
     """
-    nome_arquivo = caminho_local.split("\\")[-1]  # ou .split("/")[-1] para Unix
+    nome_arquivo = os.path.basename(caminho_local)
 
     upload_url = f"https://graph.microsoft.com/v1.0/drives/{DRIVE_ID}/root:/{PASTA_DESTINO}/{nome_arquivo}:/content"
     headers = {
