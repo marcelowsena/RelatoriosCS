@@ -1,0 +1,14 @@
+# Credenciais - NUNCA subir
+.env
+
+# Dados gerados pelo script
+powerbi_data/
+downloads/
+
+# Cache e logs
+__pycache__/
+*.pyc
+*.log
+
+# VS Code
+.vscode/
