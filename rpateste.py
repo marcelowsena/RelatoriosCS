@@ -72,27 +72,31 @@ def extrair_logs_acesso_cv(situacao="C"):
         )
         
         print("Login realizado com sucesso")
+        time.sleep(2)  # aguardar possível redirect JS
         print(f"URL pós-login: {driver.current_url}")
 
-        # CV CRM redireciona para meusdados em IPs novos — detectar e clicar em salvar
-        if "meusdados" in driver.current_url:
-            print("Detectado redirect para meusdados, tentando confirmar perfil...")
-            try:
-                botao_salvar = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR,
-                        "button[type='submit'], input[type='submit'], .btn-primary, .btn-salvar, button.btn"))
-                )
-                driver.execute_script("arguments[0].click();", botao_salvar)
-                print(f"Clicou em salvar: {botao_salvar.text or botao_salvar.get_attribute('value')}")
-                time.sleep(3)
-                print(f"URL após salvar: {driver.current_url}")
-            except Exception as ex:
-                print(f"Não encontrou botão salvar: {ex}")
-                # Tentar navegar diretamente mesmo assim
+        # Fechar qualquer alert aberto (ex: "Informe senha de atual do usuário")
+        try:
+            alert = driver.switch_to.alert
+            print(f"Alert detectado: '{alert.text}' — fechando...")
+            alert.dismiss()
+            time.sleep(1)
+        except:
+            pass  # sem alert, tudo bem
 
         url_relatorio = "https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso"
         driver.get(url_relatorio)
         time.sleep(4)
+
+        # Fechar alert novamente se abriu após navegação
+        try:
+            alert = driver.switch_to.alert
+            print(f"Alert pós-navegação: '{alert.text}' — fechando...")
+            alert.dismiss()
+            time.sleep(1)
+        except:
+            pass
+
         url_atual = driver.current_url
         print(f"URL do relatório: {url_atual}")
         if "meusdados" in url_atual:
