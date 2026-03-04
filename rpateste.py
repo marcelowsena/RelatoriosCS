@@ -75,27 +75,39 @@ def extrair_logs_acesso_cv(situacao="C"):
         time.sleep(2)  # aguardar possível redirect JS
         print(f"URL pós-login: {driver.current_url}")
 
-        # Fechar qualquer alert aberto (ex: "Informe senha de atual do usuário")
+        # CV CRM força meusdados em IPs novos — preencher e submeter o formulário
+        if "meusdados" in driver.current_url:
+            print("Na página meusdados — tentando preencher senha e submeter...")
+            try:
+                campos_senha = driver.find_elements(By.CSS_SELECTOR, "input[type='password']")
+                print(f"Campos de senha encontrados: {len(campos_senha)}")
+                for campo in campos_senha:
+                    nome = campo.get_attribute('name') or campo.get_attribute('id') or '?'
+                    campo.clear()
+                    campo.send_keys(senha)
+                    print(f"  Preencheu campo: {nome}")
+
+                btn_submit = driver.find_element(By.CSS_SELECTOR,
+                    "button[type='submit'], input[type='submit'], .btn-primary")
+                print(f"Submetendo formulário...")
+                driver.execute_script("arguments[0].click();", btn_submit)
+                time.sleep(3)
+                print(f"URL após submit: {driver.current_url}")
+            except Exception as ex:
+                print(f"Erro ao preencher meusdados: {ex}")
+
+        # Fechar qualquer alert aberto
         try:
             alert = driver.switch_to.alert
-            print(f"Alert detectado: '{alert.text}' — fechando...")
-            alert.dismiss()
-            time.sleep(1)
-        except:
-            pass  # sem alert, tudo bem
-
-        url_relatorio = "https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso"
-        driver.get(url_relatorio)
-        time.sleep(4)
-
-        # Fechar alert novamente se abriu após navegação
-        try:
-            alert = driver.switch_to.alert
-            print(f"Alert pós-navegação: '{alert.text}' — fechando...")
+            print(f"Alert: '{alert.text}' — fechando...")
             alert.dismiss()
             time.sleep(1)
         except:
             pass
+
+        url_relatorio = "https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso"
+        driver.get(url_relatorio)
+        time.sleep(4)
 
         url_atual = driver.current_url
         print(f"URL do relatório: {url_atual}")
