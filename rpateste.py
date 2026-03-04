@@ -72,10 +72,26 @@ def extrair_logs_acesso_cv(situacao="C"):
         )
         
         print("Login realizado com sucesso")
-        
-        driver.get("https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso")
-        time.sleep(3)
-        print(f"URL após navegação: {driver.current_url}")
+        print(f"URL pós-login: {driver.current_url}")
+
+        # CV CRM pode redirecionar para meusdados em IPs novos — tentar até 3 vezes
+        url_relatorio = "https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso"
+        for tentativa_nav in range(3):
+            driver.get(url_relatorio)
+            time.sleep(4)
+            url_atual = driver.current_url
+            print(f"Tentativa {tentativa_nav + 1} - URL: {url_atual}")
+            if "relatorios" in url_atual or "pessoas_logs_acesso" in url_atual:
+                break
+            if "meusdados" in url_atual:
+                print("Redirecionado para meusdados, aguardando e tentando novamente...")
+                try:
+                    driver.execute_script("window.onbeforeunload = null;")
+                except:
+                    pass
+                time.sleep(2)
+        else:
+            raise Exception(f"CV CRM bloqueou acesso ao relatório — URL final: {url_atual}")
 
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "situacao_pessoa")))
         
