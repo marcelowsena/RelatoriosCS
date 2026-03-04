@@ -25,11 +25,13 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      # 3. Instalar Xvfb (Google Chrome já vem pré-instalado no ubuntu-latest)
-      - name: Instalar Xvfb
+      # 3. Instalar Chrome e Xvfb para o Selenium
+      - name: Instalar Chrome e Xvfb
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
 
       # 4. Instalar dependências Python
       - name: Instalar dependências
