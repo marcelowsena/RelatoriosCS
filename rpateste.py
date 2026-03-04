@@ -71,8 +71,10 @@ def extrair_logs_acesso_cv(situacao="C"):
         print("Login realizado com sucesso")
         
         driver.get("https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso")
-        
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "situacao_pessoa")))
+        time.sleep(3)
+        print(f"URL após navegação: {driver.current_url}")
+
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "situacao_pessoa")))
         
         select_situacao = Select(driver.find_element(By.ID, "situacao_pessoa"))
         select_situacao.select_by_value(situacao)
