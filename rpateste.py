@@ -53,10 +53,13 @@ def extrair_logs_acesso_cv(situacao="C"):
         driver.get("https://halsten.cvcrm.com.br/gestor")
         
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "email")))
-        
-        select_painel = Select(driver.find_element(By.ID, "selectPainel"))
-        select_painel.select_by_value("gestor")
-        
+
+        try:
+            select_painel = Select(driver.find_element(By.ID, "selectPainel"))
+            select_painel.select_by_value("gestor")
+        except Exception:
+            pass  # elemento pode não existir dependendo da versão da página
+
         driver.find_element(By.ID, "email").send_keys(usuario)
         driver.find_element(By.ID, "senha").send_keys(senha)
         driver.find_element(By.CSS_SELECTOR, ".--btn-acessar").click()
