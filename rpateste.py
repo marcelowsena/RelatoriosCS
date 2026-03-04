@@ -74,24 +74,29 @@ def extrair_logs_acesso_cv(situacao="C"):
         print("Login realizado com sucesso")
         print(f"URL pós-login: {driver.current_url}")
 
-        # CV CRM pode redirecionar para meusdados em IPs novos — tentar até 3 vezes
+        # CV CRM redireciona para meusdados em IPs novos — detectar e clicar em salvar
+        if "meusdados" in driver.current_url:
+            print("Detectado redirect para meusdados, tentando confirmar perfil...")
+            try:
+                botao_salvar = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR,
+                        "button[type='submit'], input[type='submit'], .btn-primary, .btn-salvar, button.btn"))
+                )
+                driver.execute_script("arguments[0].click();", botao_salvar)
+                print(f"Clicou em salvar: {botao_salvar.text or botao_salvar.get_attribute('value')}")
+                time.sleep(3)
+                print(f"URL após salvar: {driver.current_url}")
+            except Exception as ex:
+                print(f"Não encontrou botão salvar: {ex}")
+                # Tentar navegar diretamente mesmo assim
+
         url_relatorio = "https://halsten.cvcrm.com.br/gestor/relatorios/pessoas_logs_acesso"
-        for tentativa_nav in range(3):
-            driver.get(url_relatorio)
-            time.sleep(4)
-            url_atual = driver.current_url
-            print(f"Tentativa {tentativa_nav + 1} - URL: {url_atual}")
-            if "relatorios" in url_atual or "pessoas_logs_acesso" in url_atual:
-                break
-            if "meusdados" in url_atual:
-                print("Redirecionado para meusdados, aguardando e tentando novamente...")
-                try:
-                    driver.execute_script("window.onbeforeunload = null;")
-                except:
-                    pass
-                time.sleep(2)
-        else:
-            raise Exception(f"CV CRM bloqueou acesso ao relatório — URL final: {url_atual}")
+        driver.get(url_relatorio)
+        time.sleep(4)
+        url_atual = driver.current_url
+        print(f"URL do relatório: {url_atual}")
+        if "meusdados" in url_atual:
+            raise Exception(f"CV CRM continua bloqueando acesso ao relatório — URL: {url_atual}")
 
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "situacao_pessoa")))
         
