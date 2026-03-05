@@ -43,6 +43,7 @@ jobs:
           cat > .env << 'EOF'
           CV_EMAIL=${{ secrets.CS_CV_EMAIL }}
           CV_SENHA=${{ secrets.CS_CV_SENHA }}
+          CV_TOKEN=${{ secrets.CS_CV_TOKEN }}
           EOF
 
       # 6. Executar script com display virtual
