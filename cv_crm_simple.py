@@ -23,16 +23,20 @@ class CVCRMSimple:
         self.last_request_time = time.time()
     
     def _make_request(self, endpoint: str, params: Optional[Dict] = None) -> Dict:
-        """Faz request com rate limiting"""
-        self._wait_rate_limit()
-        
+        """Faz request com rate limiting e retry em caso de 429"""
         url = f"{self.base_url}{endpoint}"
-        response = requests.get(url, headers=self.headers, params=params)
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            raise Exception(f"Erro {response.status_code}: {response.text}")
+        for attempt in range(4):
+            self._wait_rate_limit()
+            response = requests.get(url, headers=self.headers, params=params)
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 429 and attempt < 3:
+                wait = (attempt + 1) * 15  # 15s, 30s, 45s
+                print(f"Rate limit 429 (tentativa {attempt + 1}/3), aguardando {wait}s...")
+                time.sleep(wait)
+                self.last_request_time = 0  # forçar wait completo na próxima
+            else:
+                raise Exception(f"Erro {response.status_code}: {response.text}")
     
     def listar_atendimentos(self) -> List[Dict]:
         """Lista todos os atendimentos"""
