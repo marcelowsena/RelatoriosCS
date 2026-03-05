@@ -1,12 +1,18 @@
 # Credenciais - NUNCA subir
 .env
+creds_local.py
 
-# Dados gerados pelo script
+# Dados gerados pelo script (dados de clientes/empresa)
 powerbi_data/
 downloads/
+*.csv
+*.xlsx
+logs_acesso_*.json
+relatorios_*.csv
 
 # Cache e logs
 __pycache__/
+**/__pycache__/
 *.pyc
 *.log
 

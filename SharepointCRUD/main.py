@@ -2,14 +2,11 @@ import requests
 import os
 from msal import ConfidentialClientApplication
 
-# ⚙️ Configurações globais fixas
-TENANT_ID = "cd3b24d8-62d4-4be5-ae6f-e265bbc65670"
-CLIENT_ID = "a72e698e-c2ed-4092-b49a-60a74634d6a3"
-CLIENT_SECRET = "NPY8Q~mHU5fUq4aEaSnrFcppSIMW.EmSLUhiGaUX"
-
-# 📁 Configuração da biblioteca e pasta de destino
-DRIVE_ID = "b!gFvDg1fY8UC6xPpign0G3Fyi_T8AqTRErH2OflqirX-pD2TiwJ83T4hSITn6uRlW"  # <- substitua pelo ID da biblioteca (drive)
-PASTA_DESTINO = "1.7.TI/1.7.4 CONSULTAS/CS"  # <- caminho da pasta dentro do drive
+TENANT_ID = os.environ.get('SP_TENANT_ID')
+CLIENT_ID = os.environ.get('SP_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('SP_CLIENT_SECRET')
+DRIVE_ID = os.environ.get('SP_DRIVE_ID')
+PASTA_DESTINO = os.environ.get('SP_PASTA_DESTINO', '1.7.TI/1.7.4 CONSULTAS/CS')
 
 def gerar_token():
     """
