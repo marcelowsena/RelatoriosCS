@@ -48,6 +48,12 @@ jobs:
 
       # 6. Executar script com display virtual
       - name: Gerar relatórios e enviar para SharePoint
+        env:
+          SP_TENANT_ID: ${{ secrets.CS_SP_TENANT_ID }}
+          SP_CLIENT_ID: ${{ secrets.CS_SP_CLIENT_ID }}
+          SP_CLIENT_SECRET: ${{ secrets.CS_SP_CLIENT_SECRET }}
+          SP_DRIVE_ID: ${{ secrets.CS_SP_DRIVE_ID }}
+          SP_PASTA_DESTINO: ${{ secrets.CS_SP_PASTA_DESTINO }}
         run: xvfb-run python main.py
 
       # 7. Salvar artefatos (disponível por 7 dias no GitHub)
