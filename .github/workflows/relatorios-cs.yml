@@ -37,18 +37,11 @@ jobs:
       - name: Instalar dependências
         run: pip install -r requirements.txt
 
-      # 5. Criar .env com credenciais do RPA
-      - name: Criar .env
-        run: |
-          cat > .env << 'EOF'
-          CV_EMAIL=${{ secrets.CS_CV_EMAIL }}
-          CV_SENHA=${{ secrets.CS_CV_SENHA }}
-          CV_TOKEN=${{ secrets.CS_CV_TOKEN }}
-          EOF
-
-      # 6. Executar script com display virtual
+      # 5. Executar script com display virtual
       - name: Gerar relatórios e enviar para SharePoint
         env:
+          CV_EMAIL: ${{ secrets.CS_CV_EMAIL }}
+          CV_TOKEN: ${{ secrets.CS_CV_TOKEN }}
           SP_TENANT_ID: ${{ secrets.CS_SP_TENANT_ID }}
           SP_CLIENT_ID: ${{ secrets.CS_SP_CLIENT_ID }}
           SP_CLIENT_SECRET: ${{ secrets.CS_SP_CLIENT_SECRET }}
