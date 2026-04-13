@@ -18,3 +18,14 @@ __pycache__/
 
 # VS Code
 .vscode/
+
+# Environment e logs
+.env
+.env.local
+logs_acesso*.json
+logs/
+downloads/
+*.csv
+
+# Dados sensíveis
+credenciais.json
