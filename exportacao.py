@@ -269,11 +269,43 @@ class CVCRMToPowerBI:
         # Converter campos numéricos
         df['tempoResposta'] = pd.to_numeric(df['tempoResposta'], errors='coerce')
         df['slaWorkflow'] = pd.to_numeric(df['slaWorkflow'], errors='coerce')
-        
+
+        # Colunas calculadas (tempoFinalizado está em minutos)
+        df['PrazoAtendimentoDias'] = df['tempoFinalizado'] / 60 / 24
+        df['Dias em Aberto'] = df.apply(
+            lambda row: (
+                (row['dataUltimaModificacaoSituacao'] - row['dataCad']).days
+                if row['situacao'] == 'Finalizado' and pd.notna(row['dataUltimaModificacaoSituacao'])
+                else (pd.Timestamp.now().normalize() - row['dataCad']).days
+                if pd.notna(row['dataCad'])
+                else 0
+            ),
+            axis=1
+        )
+
         # Limpar dados complexos que não precisamos no Power BI
         columns_to_drop = ['empreendimento', 'respostas', 'arquivos', 'camposAdicionais']
         df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
-        
+
+        # Ordem canônica das colunas — novas colunas da API ficam no final
+        COLUNAS_ORDEM = [
+            'idatendimento', 'nome', 'titulo', 'descricao', 'idsituacao', 'dataCad',
+            'assunto', 'subassunto', 'situacao', 'telefone', 'email', 'documento',
+            'slaAssunto', 'dataVencimentoAssunto', 'slaSubassunto', 'dataVencimentoSubassunto',
+            'notaAtendimento', 'imobiliaria', 'corretor', 'tempoResposta', 'tempoFinalizado',
+            'tipo', 'classificacao', 'idresponsavel', 'responsavel',
+            'dataUltimaModificacaoSituacao', 'slaWorkflow', 'dataVencimentoWorkflow',
+            'idsUnidades', 'unidades', 'idbloco', 'bloco', 'prioridade', 'humorCliente',
+            'ultimaInteracao', 'ano', 'mes', 'dia_semana', 'empreendimento_id', 'empreendimento_nome',
+            'PrazoAtendimentoDias', 'Dias em Aberto', 'idassistencia', 'idassunto', 'idsubassunto',
+            'sla_ok',
+            'protocolo', 'encerradoPrimeiroContato', 'dataFinalizacao', 'dataCancelamento',
+            'tags', 'trimestre',
+        ]
+        colunas_presentes = [c for c in COLUNAS_ORDEM if c in df.columns]
+        colunas_extras = [c for c in df.columns if c not in COLUNAS_ORDEM]
+        df = df[colunas_presentes + colunas_extras]
+
         # Salvar com delimiter ;
         output_file = f"{self.output_folder}/atendimentos.csv"
         df.to_csv(output_file, index=False, encoding='utf-8-sig', sep=';')
