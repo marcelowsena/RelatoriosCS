@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: '0 23 * * *'
 
+permissions:
+  contents: write
+
 jobs:
   gerar-e-enviar:
     runs-on: ubuntu-latest
@@ -58,3 +61,15 @@ jobs:
           path: powerbi_data/*.csv
           retention-days: 7
           if-no-files-found: warn
+
+      # 8. Registrar atividade no repositório para o GitHub não desativar o agendamento
+      # (workflows com "schedule" são desativados automaticamente após 60 dias sem commits)
+      - name: Manter agendamento ativo
+        if: always()
+        run: |
+          echo "Última execução: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > .github/last-run.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/last-run.txt
+          git diff --cached --quiet || git commit -m "chore: registrar execução automática [skip ci]"
+          git push
